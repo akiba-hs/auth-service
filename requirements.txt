@@ -1,0 +1,5 @@
+flask
+pyTelegramBotAPI
+pyjwt
+pyjwt[crypto]
+waitress

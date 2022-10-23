@@ -1,0 +1,12 @@
+version: '2.2'
+services:
+  app:
+    restart: always
+    image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    labels:
+      - "traefik.http.routers.unlocker.rule=HostRegexp(`unlock.4kiba.com`)"
+    environment:
+     - BOT_TOKEN=$BOT_TOKEN
+     - CHAT_ID=$CHAT_ID
+     - JWT_KEY=$JWT_KEY
+     - UNLOCK_URL=$UNLOCK_URL

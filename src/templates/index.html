@@ -1,0 +1,169 @@
+<html>
+
+<head>
+    <title>Akiba Auth</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        .flex-container {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .row {
+            width: auto;
+            border: 1px solid blue;
+        }
+
+        small {
+            font-size: 0.5em;
+        }
+
+        p {
+            margin-block-start: 1em;
+            margin-block-end: 0.2em;
+        }
+
+        .flex-item {
+            background-color: tomato;
+            padding: 50px;
+            width: 400px;
+            margin: 10px;
+            line-height: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 2em;
+            text-align: center;
+        }
+
+        .button-32 {
+            background-color: #fff000;
+            border-radius: 12px;
+            color: #000;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 10px 15px;
+            text-align: center;
+            transition: 200ms;
+            width: 200px;
+            margin: 1em;
+            box-sizing: border-box;
+            border: 0;
+            font-size: 16px;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .button-32:not(:disabled):hover,
+        .button-32:not(:disabled):focus {
+            outline: 0;
+            background: #f4e603;
+            box-shadow: 0 0 0 2px rgba(0,0,0,.2), 0 3px 8px 0 rgba(0,0,0,.15);
+        }
+
+        .button-32:disabled {
+            filter: saturate(0.2) opacity(0.5);
+            -webkit-filter: saturate(0.2) opacity(0.5);
+            cursor: not-allowed;
+        }
+
+        .btn-link {
+            border: none;
+            outline: none;
+            background: none;
+            cursor: pointer;
+            color: #0000EE;
+            padding: 0;
+            text-decoration: underline;
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        form {
+            margin: 0;
+        }
+
+        pre {
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            line-height: 1em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flex-container">
+        <div class="row">
+            {% if payload %}
+            <div class="flex-item">
+                <img src="{{ payload['photo_url'] }}" />
+                <p>{{ payload['first_name'] }} {{ payload['last_name'] }}</p>
+                <form action="/logout" method="post">
+                    <small><button type="submit" class="btn-link">выйти</button></small>
+                </form>
+                <button id="open" class="button-32" onclick="sendRequest()">ОТКРЫТЬ ВРАТА</button>
+                <br>
+                <small>Нужно подключиться к вайфаю Hackspace</small>
+                <br>
+                <pre id="log"></pre>
+            </div>
+            {% else %}
+            <div class="flex-item">
+                <script async src="https://telegram.org/js/telegram-widget.js?21" data-telegram-login="akiba_dev_bot" data-size="large" data-auth-url="http://127.0.0.1/login" data-request-access="write"></script>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function sendRequest() {
+            let btn = document.getElementById("open");
+            let log = document.getElementById("log");
+            btn.setAttribute("disabled", "");
+            btn.innerText = "Открываем...";
+            (async () => {
+                try {
+                    const rawResponse = await fetch('{{ unlock_url }}', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({token: '{{ token }}'})
+                    });
+                    const content = await rawResponse.json();
+                    if (content["ok"]) {
+                        btn.innerText = "Открыли!";
+                    } else {
+                        log.innerText = JSON.stringify(content);
+                        console.log(content);
+                        btn.removeAttribute("disabled");
+                        btn.innerText = "ОТКРЫТЬ ВРАТА";
+                    }
+                } catch (e) {
+                    log.innerText = e;
+                    console.log(e);
+                    btn.removeAttribute("disabled");
+                    btn.innerText = "ОТКРЫТЬ ВРАТА";
+                }
+                
+            })();
+        }
+    </script>
+</body>
+</html>

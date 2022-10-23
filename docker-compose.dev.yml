@@ -1,0 +1,12 @@
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+     - 80:8080
+    secrets:
+     - jwt_private_key
+    env_file: envfile
+secrets:
+  jwt_private_key:
+    file: jwtRS256.key
