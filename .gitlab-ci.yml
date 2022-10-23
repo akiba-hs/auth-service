@@ -6,6 +6,10 @@
 # do not use "latest" here, if you want this to work in the future
 image: docker:20
 
+# Use this if your GitLab runner does not use socket binding
+services:
+  - docker:dind
+
 stages:
   - build
   - push
@@ -21,7 +25,7 @@ before_script:
   # docker login asks for the password to be passed through stdin for security
   # we use $CI_REGISTRY_PASSWORD here which is a special variable provided by GitLab
   # https://docs.gitlab.com/ce/ci/variables/predefined_variables.html
-  - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin registry.gitlab.com
+  - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
 
 Build:
   stage: build
