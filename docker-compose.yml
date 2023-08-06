@@ -5,6 +5,7 @@ services:
     image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     labels:
       - "traefik.http.routers.auth.rule=HostRegexp(`auth.akiba.space`)"
+      - "traefik.enable=true"
     environment:
      - BOT_TOKEN=$BOT_TOKEN
      - CHAT_ID=$CHAT_ID
