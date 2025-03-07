@@ -2,7 +2,7 @@ version: '2.2'
 services:
   app:
     restart: always
-    image: ghcr.io/akiba-hs/auth-service:${COMMIT_SHA}
+    image: ghcr.io/akiba-hs/auth-service:dev-${COMMIT_SHA}
     labels:
       - "traefik.http.routers.auth.rule=HostRegexp(`auth.akiba.space`)"
       - "traefik.enable=true"
