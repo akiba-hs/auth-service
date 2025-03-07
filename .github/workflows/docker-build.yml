@@ -13,14 +13,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Set environment variables
+        run: echo "COMMIT_SHA=${GITHUB_SHA}" >> $GITHUB_ENV
+
       - name: Login to GitHub Container Registry
         run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build and push Docker image
         run: |
           IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/auth-service
-          BRANCH_NAME=${{ github.ref_name }}
-          TAG=${BRANCH_NAME//\//-}  # Меняем слэши на дефисы
+          TAG=${GITHUB_REF_NAME//\//-}-${GITHUB_SHA:0:7}
 
           docker build -t $IMAGE_NAME:$TAG .
           docker push $IMAGE_NAME:$TAG
