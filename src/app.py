@@ -52,7 +52,13 @@ def login():
     encoded = jwt.encode({**args, "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=7)}, private_key, algorithm="RS256")
 
     r = redirect("/", code=303)
-    r.set_cookie("token", encoded)
+    r.set_cookie(
+        "token", 
+        encoded, 
+        domain=".akiba.space", 
+        httponly=True, 
+        secure=False, 
+        samesite="Lax")
     return r
 
 
