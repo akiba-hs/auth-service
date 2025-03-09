@@ -34,6 +34,15 @@ def index():
 
 @app.route("/login")
 def login():
+
+    redirect_uri = request.args.get("redirect_uri", "/")
+
+    from urllib.parse import urlparse
+    parsed_uri = urlparse(redirect_uri)
+
+    if not parsed_uri.netloc.endswith(".akiba.space"):
+        return "Invalid redirect_uri", 400
+
     # check telegram params
     args = request.args.to_dict()
     given_hash = args['hash']
@@ -51,7 +60,7 @@ def login():
     # generate token
     encoded = jwt.encode({**args, "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=7)}, private_key, algorithm="RS256")
 
-    r = redirect("/", code=303)
+    r = redirect(redirect_uri, code=303)
     r.set_cookie(
         "token", 
         encoded, 
