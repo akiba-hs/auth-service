@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -111,7 +112,7 @@
         <div class="row">
             {% if payload %}
             <div class="flex-item">
-                <img src="{{ payload['photo_url'] }}" />
+                <img src="{{ payload['photo_url'] }}" alt="User photo" />
                 <p>{{ payload['first_name'] }} {{ payload['last_name'] }}</p>
                 <form action="/logout" method="post">
                     <small><button type="submit" class="btn-link">выйти</button></small>
@@ -128,7 +129,7 @@
                 async src="https://telegram.org/js/telegram-widget.js?21" 
                 data-telegram-login="akiba_hs_bot" 
                 data-size="large" 
-                data-auth-url="https://auth.akiba.space/login" 
+                data-auth-url="https://auth.akiba.space/login{% if redirect_uri %}?redirect_uri={{ redirect_uri|urlencode }}{% endif %}"
                 data-request-access="write">
             </script>
             </div>
