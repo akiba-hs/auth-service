@@ -14,6 +14,7 @@ BOT_TOKEN = os.environ["BOT_TOKEN"]
 CHAT_ID = int(os.environ["CHAT_ID"])
 JWT_KEY = open(os.environ.get("JWT_KEY_PATH"), "rb").read() if os.environ.get("JWT_KEY_PATH") is not None else os.environ.get("JWT_KEY").encode()
 UNLOCK_URL = os.environ["UNLOCK_URL"]
+AKIBA_DOMAIN = os.environ["DOMAIN"]
 
 app = Flask(__name__)
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode=None)
@@ -26,7 +27,7 @@ def index():
     redirect_uri = request.args.get("redirect_uri")
     if redirect_uri:
         parsed_uri = urlparse(redirect_uri)
-        if not parsed_uri.netloc.endswith(".akiba.space"):
+        if not parsed_uri.netloc.endswith(AKIBA_DOMAIN):
             return "Invalid redirect_uri", 400
 
     token = request.cookies.get("token")
@@ -39,19 +40,18 @@ def index():
                 return render_template("index.html", payload=payload, token=token, unlock_url=UNLOCK_URL, redirect_uri="")
         except Exception as e:
             r = make_response(render_template("index.html", payload=None, token="", unlock_url=UNLOCK_URL, redirect_uri=redirect_uri))
-            r.set_cookie("token", "", domain=".akiba.space")
+            r.set_cookie("token", "", domain=AKIBA_DOMAIN)
             return r
     else:
         return render_template("index.html", payload=None, token="", unlock_url=UNLOCK_URL, redirect_uri=redirect_uri)
 
 @app.route("/login")
 def login():
-
     redirect_uri = request.args.get("redirect_uri")
 
     if redirect_uri:
         parsed_uri = urlparse(redirect_uri)
-        if not parsed_uri.netloc.endswith(".akiba.space"):
+        if not parsed_uri.netloc.endswith(AKIBA_DOMAIN):
             return "Invalid redirect_uri", 400
 
     # check telegram params
@@ -85,7 +85,7 @@ def login():
     r.set_cookie(
         "token", 
         encoded, 
-        domain=".akiba.space", 
+        domain=AKIBA_DOMAIN, 
         httponly=True, 
         secure=False, 
         samesite="Lax")
@@ -95,7 +95,7 @@ def login():
 @app.route("/logout", methods=['POST'])
 def logout():
     r = redirect("/", code=303)
-    r.set_cookie("token", "", domain=".akiba.space")
+    r.set_cookie("token", "", domain=AKIBA_DOMAIN)
     return r
 
 if __name__ == "__main__":
