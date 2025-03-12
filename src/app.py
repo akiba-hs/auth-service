@@ -13,7 +13,6 @@ from urllib.parse import urlparse
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 CHAT_ID = int(os.environ["CHAT_ID"])
 JWT_KEY = open(os.environ.get("JWT_KEY_PATH"), "rb").read() if os.environ.get("JWT_KEY_PATH") is not None else os.environ.get("JWT_KEY").encode()
-UNLOCK_URL = os.environ["UNLOCK_URL"]
 AKIBA_DOMAIN = os.environ["DOMAIN"]
 
 app = Flask(__name__)
@@ -37,13 +36,13 @@ def index():
             if redirect_uri:
                 return redirect(redirect_uri, code=303)
             else:
-                return render_template("index.html", payload=payload, token=token, unlock_url=UNLOCK_URL, redirect_uri="")
+                return render_template("index.html", payload=payload, token=token, redirect_uri="")
         except Exception as e:
-            r = make_response(render_template("index.html", payload=None, token="", unlock_url=UNLOCK_URL, redirect_uri=redirect_uri))
+            r = make_response(render_template("index.html", payload=None, token="", redirect_uri=redirect_uri))
             r.set_cookie("token", "", domain=AKIBA_DOMAIN)
             return r
     else:
-        return render_template("index.html", payload=None, token="", unlock_url=UNLOCK_URL, redirect_uri=redirect_uri)
+        return render_template("index.html", payload=None, token="", redirect_uri=redirect_uri)
 
 @app.route("/login")
 def login():
