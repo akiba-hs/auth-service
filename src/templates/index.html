@@ -48,38 +48,6 @@
             text-align: center;
         }
 
-        .button-32 {
-            background-color: #fff000;
-            border-radius: 12px;
-            color: #000;
-            cursor: pointer;
-            font-weight: bold;
-            padding: 10px 15px;
-            text-align: center;
-            transition: 200ms;
-            width: 200px;
-            margin: 1em;
-            box-sizing: border-box;
-            border: 0;
-            font-size: 16px;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-        }
-
-        .button-32:not(:disabled):hover,
-        .button-32:not(:disabled):focus {
-            outline: 0;
-            background: #f4e603;
-            box-shadow: 0 0 0 2px rgba(0,0,0,.2), 0 3px 8px 0 rgba(0,0,0,.15);
-        }
-
-        .button-32:disabled {
-            filter: saturate(0.2) opacity(0.5);
-            -webkit-filter: saturate(0.2) opacity(0.5);
-            cursor: not-allowed;
-        }
-
         .btn-link {
             border: none;
             outline: none;
@@ -95,15 +63,6 @@
         form {
             margin: 0;
         }
-
-        pre {
-            white-space: pre-wrap;       /* css-3 */
-            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-            white-space: -pre-wrap;      /* Opera 4-6 */
-            white-space: -o-pre-wrap;    /* Opera 7 */
-            word-wrap: break-word;       /* Internet Explorer 5.5+ */
-            line-height: 1em;
-        }
     </style>
 </head>
 
@@ -117,11 +76,6 @@
                 <form action="/logout" method="post">
                     <small><button type="submit" class="btn-link">выйти</button></small>
                 </form>
-                <button id="open" class="button-32" onclick="sendRequest()">ОТКРЫТЬ ВРАТА</button>
-                <br>
-                <small>Нужно подключиться к вайфаю Hackspace</small>
-                <br>
-                <pre id="log"></pre>
             </div>
             {% else %}
             <div class="flex-item">
@@ -136,41 +90,5 @@
             {% endif %}
         </div>
     </div>
-
-    <script>
-        function sendRequest() {
-            let btn = document.getElementById("open");
-            let log = document.getElementById("log");
-            btn.setAttribute("disabled", "");
-            btn.innerText = "Открываем...";
-            (async () => {
-                try {
-                    const rawResponse = await fetch('{{ unlock_url }}', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({token: '{{ token }}'})
-                    });
-                    const content = await rawResponse.json();
-                    if (content["ok"]) {
-                        btn.innerText = "Открыли!";
-                    } else {
-                        log.innerText = JSON.stringify(content);
-                        console.log(content);
-                        btn.removeAttribute("disabled");
-                        btn.innerText = "ОТКРЫТЬ ВРАТА";
-                    }
-                } catch (e) {
-                    log.innerText = e;
-                    console.log(e);
-                    btn.removeAttribute("disabled");
-                    btn.innerText = "ОТКРЫТЬ ВРАТА";
-                }
-                
-            })();
-        }
-    </script>
 </body>
 </html>
