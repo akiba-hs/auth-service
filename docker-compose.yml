@@ -2,12 +2,14 @@ version: '2.2'
 services:
   app:
     restart: always
-    image: ghcr.io/akiba-hs/auth-service:dev-${COMMIT_SHA}
+    image: ghcr.io/akiba-hs/auth-service:latest
     labels:
       - "traefik.http.routers.auth.rule=HostRegexp(`auth.akiba.space`)"
       - "traefik.enable=true"
     environment:
-     - BOT_TOKEN=$BOT_TOKEN
-     - CHAT_ID=$CHAT_ID
-     - JWT_KEY=$JWT_KEY
-     - UNLOCK_URL=$UNLOCK_URL
+     - BOT_TOKEN=${BOT_TOKEN}
+     - CHAT_ID=${CHAT_ID}
+     - JWT_KEY_PATH=/app/jwt_key.pem
+     - DOMAIN=${DOMAIN}
+    volumes:
+      - ./jwt_key.pem:/app/jwt_key.pem:ro
