@@ -13,7 +13,7 @@
             padding: 0;
         }
 
-        html, body {
+        html {
             height: 100%;
             background: #252528;
             display: flex;
@@ -74,7 +74,7 @@
 </head>
 
 <body>
-    <img src="{{ url_for('static', filename='banner.png') }}" alt="Banner" class="banner" />
+    <img src="{{ url_for('static', filename='banner.svg') }}" alt="Banner" class="banner" />
     <div class="flex-container">
         {% if payload %}
         <div class="flex-item">
