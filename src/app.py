@@ -72,6 +72,9 @@ def login():
     # check user is in channel
     member = bot.get_chat_member(CHAT_ID, int(args["id"]))
 
+    if member.status not in ["member", "administrator", "creator"]:
+        return f"User is not a member of the required channel\n{member.status}", 403
+
     # generate token
     token_payload = {**args, "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=7)}
     if redirect_uri:
