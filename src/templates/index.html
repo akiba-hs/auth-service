@@ -4,91 +4,97 @@
 <head>
     <title>Akiba Auth</title>
     <style>
-        html,
-        body {
-            height: 100%;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
         }
 
-        body {
-            margin: 0;
+        html, body {
+            height: 100%;
+            background: #252528;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #f4f1ec;
+        }
+
+        .banner {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
         }
 
         .flex-container {
-            height: 100%;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
+            background: #1f2021;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(185, 41, 59, 0.4);
+            width: 400px;
+            border: 2px solid #b9293b;
         }
 
-        .row {
-            width: auto;
-            border: 1px solid blue;
-        }
-
-        small {
-            font-size: 0.5em;
+        .flex-item img {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            border: 3px solid #b9293b;
         }
 
         p {
-            margin-block-start: 1em;
-            margin-block-end: 0.2em;
-        }
-
-        .flex-item {
-            background-color: tomato;
-            padding: 50px;
-            width: 400px;
-            margin: 10px;
-            line-height: 20px;
-            color: white;
-            font-weight: bold;
-            font-size: 2em;
-            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
         }
 
         .btn-link {
             border: none;
             outline: none;
-            background: none;
+            background: #b9293b;
+            color: #f4f1ec;
+            font-size: 1em;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
-            color: #0000EE;
-            padding: 0;
-            text-decoration: underline;
-            font-family: inherit;
-            font-size: inherit;
+            transition: box-shadow 0.3s, transform 0.2s;
         }
 
-        form {
-            margin: 0;
+        .btn-link:hover {
+            box-shadow: 0 0 15px #b9293b;
+            transform: scale(1.05);
         }
     </style>
 </head>
 
 <body>
+    <img src="{{ url_for('static', filename='banner.png') }}" alt="Banner" class="banner" />
     <div class="flex-container">
-        <div class="row">
-            {% if payload %}
-            <div class="flex-item">
-                <img src="{{ payload['photo_url'] }}" alt="User photo" />
-                <p>{{ payload['first_name'] }} {{ payload['last_name'] }}</p>
-                <form action="/logout" method="post">
-                    <small><button type="submit" class="btn-link">выйти</button></small>
-                </form>
-            </div>
-            {% else %}
-            <div class="flex-item">
-                <script 
-                async src="https://telegram.org/js/telegram-widget.js?21" 
-                data-telegram-login="akiba_hs_bot" 
-                data-size="large" 
-                data-auth-url="https://auth.akiba.space/login{% if redirect_uri %}?redirect_uri={{ redirect_uri|urlencode }}{% endif %}"
-                data-request-access="write">
-            </script>
-            </div>
-            {% endif %}
+        {% if payload %}
+        <div class="flex-item">
+            <img src="{{ payload['photo_url'] }}" alt="User photo" />
+            <p>{{ payload['first_name'] }} {{ payload['last_name'] }}</p>
+            <form action="/logout" method="post">
+                <button type="submit" class="btn-link">Выйти</button>
+            </form>
         </div>
+        {% else %}
+        <div class="flex-item">
+            <script 
+            async src="https://telegram.org/js/telegram-widget.js?21" 
+            data-telegram-login="akiba_hs_bot" 
+            data-size="large" 
+            data-auth-url="https://auth.akiba.space/login{% if redirect_uri %}?redirect_uri={{ redirect_uri|urlencode }}{% endif %}"
+            data-request-access="write">
+        </script>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>
