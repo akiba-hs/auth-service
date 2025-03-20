@@ -5,11 +5,7 @@ Authorization via Telegram to the hackspace infrastructure
 ## TODO:
 
 ### Cloudflare worker
-- add on github
-- autodeploy
-- check signature
+- add basic auth
 
 ### Backend
-- optimize tagging packages
-- clean html code
-- prepare .env example
+- add otp for ssh
