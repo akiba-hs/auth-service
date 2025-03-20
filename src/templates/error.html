@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Ошибка - Akiba Auth</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            height: 100%;
+            background: #252528;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #f4f1ec;
+        }
+
+        .banner {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        .flex-container {
+            text-align: center;
+            background: #1f2021;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(185, 41, 59, 0.4);
+            width: 600px;
+            border: 2px solid #b9293b;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            color: #ff4d4d;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .btn-link {
+            border: none;
+            outline: none;
+            background: #b9293b;
+            color: #f4f1ec;
+            font-size: 1em;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: box-shadow 0.3s, transform 0.2s;
+        }
+
+        .btn-link:hover {
+            box-shadow: 0 0 15px #b9293b;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+    <img src="{{ url_for('static', filename='banner.svg') }}" alt="Banner" class="banner" />
+    <div class="flex-container">
+        <h1>Ошибка {{ code }}</h1>
+        <p>{{ message }}</p>
+        <button onclick="window.history.back()" class="btn-link">Назад</button>
+    </div>
+</body>
+
+</html>

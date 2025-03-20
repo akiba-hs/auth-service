@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, make_response
+from flask import Flask, request, render_template, redirect, make_response, abort
 import hashlib
 import hmac
 import time
@@ -21,13 +21,20 @@ private_key = serialization.load_pem_private_key(
     JWT_KEY, password=None, backend=default_backend()
 )
 
+@app.errorhandler(400)
+@app.errorhandler(403)
+@app.errorhandler(404)
+@app.errorhandler(500)
+def handle_error(error):
+    return render_template("error.html", message=error.description, code=error.code), error.code
+
 @app.route("/")
 def index():
     redirect_uri = request.args.get("redirect_uri")
     if redirect_uri:
         parsed_uri = urlparse(redirect_uri)
         if not parsed_uri.netloc.endswith(AKIBA_DOMAIN):
-            return "Invalid redirect_uri", 400
+            abort(400, description="Invalid redirect_uri")
 
     token = request.cookies.get("token")
     if token:
@@ -37,7 +44,7 @@ def index():
                 return redirect(redirect_uri, code=303)
             else:
                 return render_template("index.html", payload=payload, token=token, redirect_uri="")
-        except Exception as e:
+        except Exception:
             r = make_response(render_template("index.html", payload=None, token="", redirect_uri=redirect_uri))
             r.set_cookie("token", "", domain=AKIBA_DOMAIN)
             return r
@@ -51,7 +58,7 @@ def login():
     if redirect_uri:
         parsed_uri = urlparse(redirect_uri)
         if not parsed_uri.netloc.endswith(AKIBA_DOMAIN):
-            return "Invalid redirect_uri", 400
+            abort(400, description="Invalid redirect_uri")
 
     # check telegram params
     args = request.args.to_dict()
@@ -59,20 +66,20 @@ def login():
         del args["redirect_uri"]
     given_hash = args.pop("hash", None)
     if not given_hash:
-        return "Missing hash", 403
+        abort(403, description="Missing hash")
 
     args_string = '\n'.join(sorted([f"{k}={v}" for k, v in args.items()]))
     computed_hash = hmac.new(hashlib.sha256(BOT_TOKEN.encode()).digest(), args_string.encode(), hashlib.sha256).hexdigest()
     if given_hash != computed_hash:
-        return "Bad hash", 403
+        abort(403, description="Bad hash")
     if int(time.time()) - int(args["auth_date"]) > 86400:
-        return "Data is outdated", 403
+        abort(403, description="Data is outdated")
     
     # check user is in channel
     member = bot.get_chat_member(CHAT_ID, int(args["id"]))
 
     if member.status not in ["member", "administrator", "creator"]:
-        return f"User is not a member of the required channel\n{member.status}", 403
+        abort(403, description=f"User is not a member of the required channel ({member.status})")
 
     # generate token
     token_payload = {**args, "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=7)}
