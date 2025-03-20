@@ -6,6 +6,7 @@ import os
 import telebot
 import jwt
 import datetime
+import logging
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 from urllib.parse import urlparse
@@ -14,6 +15,9 @@ BOT_TOKEN = os.environ["BOT_TOKEN"]
 CHAT_ID = int(os.environ["CHAT_ID"])
 JWT_KEY = open(os.environ.get("JWT_KEY_PATH"), "rb").read() if os.environ.get("JWT_KEY_PATH") is not None else os.environ.get("JWT_KEY").encode()
 AKIBA_DOMAIN = os.environ["DOMAIN"]
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode=None)
@@ -77,6 +81,8 @@ def login():
     
     # check user is in channel
     member = bot.get_chat_member(CHAT_ID, int(args["id"]))
+    username = member.user.username if member.user.username else "N/A"
+    logger.info(f"Username: @{username}, User ID: {args['id']}, Status: {member.status}")
 
     if member.status not in ["member", "administrator", "creator"]:
         abort(403, description=f"User is not a member of the required channel ({member.status})")
