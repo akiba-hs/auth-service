@@ -48,8 +48,8 @@ jobs:
           cat > .env <<EOF
           BOT_TOKEN=${{ secrets.BOT_TOKEN }}
           JWT_KEY=${{ secrets.JWT_KEY }}
-          CHAT_ID=${{ env.CHAT_ID }}
-          DOMAIN=${{ env.DOMAIN }}
+          CHAT_ID=${{ vars.CHAT_ID }}
+          DOMAIN=${{ vars.DOMAIN }}
           EOF
       - uses: humbertocrispim/ssh-docker-compose-action@v1.0.0
         name: Remote Deployment with Docker-Compose
