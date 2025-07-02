@@ -57,6 +57,6 @@ jobs:
           ssh_host: central.akiba.space
           ssh_private_key: ${{ secrets.AKIBA_CENTRAL_SSH_PRIVATE_KEY }}
           ssh_user: ${{ secrets.AKIBA_CENTRAL_SSH_USER }}
-          docker_compose_prefix: ${{ github.repository }}
+          docker_compose_prefix: ${{ github.event.repository.name }}
           docker_compose_filename: compose.yml
           pull: true
