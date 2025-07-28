@@ -84,11 +84,10 @@ def login():
     username = member.user.username if member.user.username else "N/A"
     logger.info(f"Username: @{username}, User ID: {args['id']}, Status: {member.status}")
 
-    if member.status not in ["member", "administrator", "creator"]:
-        abort(403, description=f"User is not a member of the required channel ({member.status})")
+    is_resident = member.status in ["member", "administrator", "creator"]
 
     # generate token
-    token_payload = {**args, "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=7)}
+    token_payload = {**args, "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=7), "is_resident": is_resident}
     if redirect_uri:
         token_payload["redirect_uri"] = redirect_uri
     encoded = jwt.encode(token_payload, private_key, algorithm="RS256")
