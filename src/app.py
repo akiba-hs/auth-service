@@ -7,7 +7,6 @@ import telebot
 import jwt
 import datetime
 import logging
-import json
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 from urllib.parse import urlparse
@@ -95,68 +94,11 @@ def login():
 
     r = redirect(redirect_uri if redirect_uri else "/", code=303)
     r.set_cookie(
-        "token",
-        encoded,
-        domain=AKIBA_DOMAIN,
-        httponly=True,
-        secure=False,
-        samesite="Lax")
-    return r
-
-
-@app.route("/webapp-login")
-def webapp_login():
-    redirect_uri = request.args.get("redirect_uri")
-
-    if redirect_uri:
-        parsed_uri = urlparse(redirect_uri)
-        if not parsed_uri.netloc.endswith(AKIBA_DOMAIN):
-            abort(400, description="Invalid redirect_uri")
-
-    args = request.args.to_dict()
-    if "redirect_uri" in args:
-        del args["redirect_uri"]
-    given_hash = args.pop("hash", None)
-    if not given_hash:
-        abort(403, description="Missing hash")
-
-    secret_key = hmac.new("WebAppData".encode(), BOT_TOKEN.encode(), hashlib.sha256).digest()
-    data_check_string = '\n'.join(sorted([f"{k}={v}" for k, v in args.items()]))
-    computed_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
-    if given_hash != computed_hash:
-        abort(403, description="Bad hash")
-    if int(time.time()) - int(args.get("auth_date", 0)) > 86400:
-        abort(403, description="Data is outdated")
-
-    try:
-        user = json.loads(args.get("user", "{}"))
-    except Exception:
-        abort(403, description="Bad user data")
-
-    user_id = user.get("id")
-    if not user_id:
-        abort(403, description="Missing user")
-
-    member = bot.get_chat_member(CHAT_ID, int(user_id))
-    username = member.user.username if member.user.username else "N/A"
-    logger.info(f"Username: @{username}, User ID: {user_id}, Status: {member.status}")
-
-    is_resident = member.status in ["member", "administrator", "creator"]
-
-    token_payload = {**user, "auth_date": args.get("auth_date"), "query_id": args.get("query_id"),
-                     "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=7),
-                     "is_resident": is_resident}
-    if redirect_uri:
-        token_payload["redirect_uri"] = redirect_uri
-    encoded = jwt.encode(token_payload, private_key, algorithm="RS256")
-
-    r = redirect(redirect_uri if redirect_uri else "/", code=303)
-    r.set_cookie(
-        "token",
-        encoded,
-        domain=AKIBA_DOMAIN,
-        httponly=True,
-        secure=False,
+        "token", 
+        encoded, 
+        domain=AKIBA_DOMAIN, 
+        httponly=True, 
+        secure=False, 
         samesite="Lax")
     return r
 
