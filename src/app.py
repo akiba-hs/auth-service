@@ -9,6 +9,7 @@ import datetime
 import logging
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
+from telebot.apihelper import ApiTelegramException
 from urllib.parse import urlparse
 
 BOT_TOKEN = os.environ["BOT_TOKEN"]
@@ -29,8 +30,17 @@ private_key = serialization.load_pem_private_key(
 @app.errorhandler(403)
 @app.errorhandler(404)
 @app.errorhandler(500)
+@app.errorhandler(502)
 def handle_error(error):
     return render_template("error.html", message=error.description, code=error.code), error.code
+
+
+def is_missing_telegram_participant_error(error):
+    description = getattr(error, "description", "")
+    return (
+        getattr(error, "error_code", None) == 400
+        and "PARTICIPANT_ID_INVALID" in description
+    )
 
 @app.route("/")
 def index():
@@ -80,11 +90,26 @@ def login():
         abort(403, description="Data is outdated")
     
     # check user is in channel
-    member = bot.get_chat_member(CHAT_ID, int(args["id"]))
-    username = member.user.username if member.user.username else "N/A"
-    logger.info(f"Username: @{username}, User ID: {args['id']}, Status: {member.status}")
+    user_id = int(args["id"])
+    try:
+        member = bot.get_chat_member(CHAT_ID, user_id)
+    except ApiTelegramException as error:
+        if not is_missing_telegram_participant_error(error):
+            logger.exception("Could not verify Telegram membership for user ID %s", user_id)
+            abort(502, description="Could not verify Telegram membership")
 
-    is_resident = member.status in ["member", "administrator", "creator"]
+        username = args.get("username") or "N/A"
+        logger.info(
+            "Username: @%s, User ID: %s, Status: not_found (%s)",
+            username,
+            user_id,
+            error.description,
+        )
+        is_resident = False
+    else:
+        username = member.user.username if member.user.username else "N/A"
+        logger.info(f"Username: @{username}, User ID: {args['id']}, Status: {member.status}")
+        is_resident = member.status in ["member", "administrator", "creator"]
 
     # generate token
     token_payload = {**args, "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=7), "is_resident": is_resident}
